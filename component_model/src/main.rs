@@ -5,8 +5,11 @@ use wasmtime_wasi::{WasiCtx, WasiView, WasiCtxBuilder, ResourceTable};
 fn main() -> Result<()> {
 
     let args: Vec<String> = std::env::args().collect();
-    let input = parse_args(args.clone());
-    println!("Input: {} With size: {}", input, input.len());
+    // Version 1: Take multiple arguments and create a JSON object
+    //let input = parse_args(args.clone());
+    // Version 2: Take a single argument (already a JSON object)
+    let input = args[2].clone();
+    println!("Input: {:?}", input);
 
     let mut result = [wasmtime::component::Val::String("".into())];
         
@@ -46,7 +49,7 @@ impl WasiView for MyState {
     fn table(&mut self) -> &mut ResourceTable { &mut self.table }
 }
 
-
+#[allow(dead_code)]
 fn parse_args(args: Vec<String>) -> String {
     let mut input = String::from("{");
     for (i, arg) in args.iter().skip(2).enumerate() {

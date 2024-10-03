@@ -10,9 +10,10 @@ fn main() -> Result<()> {
     //    std::process::exit(1);
     //}
 
-    // Read the last arg from io::stdin() for image input. 
-    // This is a hack to get around the fact that the image input is too large to pass as a command line argument
-    let input = vec![" ".to_string(), parse_args(args.clone())];
+    // Version 1: Take multiple arguments and create a JSON object
+    //let input = vec![" ".to_string(), parse_args(args.clone())];
+    // Version 2: Take a single argument (already a JSON object)
+    let input = vec![" ".to_string(), args[2].clone()];
     println!("Input: {:?}", input);
 
     // Time the entire process
@@ -80,7 +81,7 @@ fn main() -> Result<()> {
 }
 
 
-
+#[allow(dead_code)]
 fn parse_args(args: Vec<String>) -> String {
     let mut input = String::from("{");
     for (i, arg) in args.iter().skip(2).enumerate() {

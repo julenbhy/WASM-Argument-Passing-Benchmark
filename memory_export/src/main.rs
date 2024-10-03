@@ -4,8 +4,12 @@ use wasi_common::sync::WasiCtxBuilder;
 fn main() -> Result<()> {
     
     let args: Vec<String> = std::env::args().collect();
-    let input = parse_args(args.clone());
-    println!("Input: {} With size: {}", input, input.len());
+
+    // Version 1: Take multiple arguments and create a JSON object
+    //let input = parse_args(args.clone());
+    // Version 2: Take a single argument (already a JSON object)
+    let input = args[2].clone();
+    println!("Input: {:?}", input);
 
     let engine = Engine::default();
     let mut linker = Linker::new(&engine);
@@ -39,14 +43,10 @@ fn main() -> Result<()> {
     memory.data_mut(&mut store)[input_ptr..(input_ptr + input_bytes.len())].copy_from_slice(input_bytes);
 
     // Call the _start function
-    let start = std::time::Instant::now();
     let func = instance.get_typed_func::<(), ()>(&mut store, "_start").unwrap();
     func.call(&mut store, ())?;
-    println!("Execution time: {:?}ns", start.elapsed().as_nanos());
 
     // Get the result from the WASM module execution
-    let start = std::time::Instant::now();
-
     let Ok(get_result_len) = instance.get_typed_func::<(), u32>(&mut store, "get_result_len") else {
         anyhow::bail!("Failed to get get_result_len");
     };
@@ -68,7 +68,7 @@ fn main() -> Result<()> {
 }
 
 
-
+#[allow(dead_code)]
 fn parse_args(args: Vec<String>) -> String {
     let mut input = String::from("{");
     for (i, arg) in args.iter().skip(2).enumerate() {
