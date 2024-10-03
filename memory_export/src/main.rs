@@ -5,7 +5,7 @@ fn main() -> Result<()> {
     
     let args: Vec<String> = std::env::args().collect();
     let input = parse_args(args.clone());
-    println!("Input: {:?} With size: {}", input, input.len());
+    println!("Input: {} With size: {}", input, input.len());
 
     let engine = Engine::default();
     let mut linker = Linker::new(&engine);
@@ -21,7 +21,6 @@ fn main() -> Result<()> {
     //Instantiate the module
     let instance_pre = linker.instantiate_pre(&module)?;
     let instance = instance_pre.instantiate(&mut store).unwrap();
-
 
     // Pass the input to the WASM module
     let Ok(set_input) = instance.get_typed_func::<u32, u32>(&mut store, "set_input") else {

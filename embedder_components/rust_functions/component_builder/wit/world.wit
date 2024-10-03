@@ -1,0 +1,6 @@
+package component:component-builder;
+
+/// An example world for the component to target.
+world component {
+    export func-wrapper: func(input: string) -> string;
+}
