@@ -24,7 +24,7 @@ fn main() -> Result<()> {
     /*
     unsafe {
         println!(
-            "From rust:\n\tResult ptr (decimal): {}\n\tResult length: {}\n\tResult: {}",
+            "From WASM:\n\tResult ptr (decimal): {}\n\tResult length: {}\n\tResult: {}",
             RESULT.as_ref().unwrap().as_ptr() as usize,
             RESULT.as_ref().unwrap().len(),
             RESULT.as_ref().unwrap()
