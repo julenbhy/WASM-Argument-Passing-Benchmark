@@ -1,8 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-
 char* func(char* json) {
     int a, b;
 
@@ -15,20 +10,3 @@ char* func(char* json) {
 
     return result;
 }
-
-
-const char *RESULT;
-char __attribute__((export_name("get_result"))) *get_result() { return strdup(RESULT); }
-size_t __attribute__((export_name("get_result_len"))) get_result_len() { return strlen(RESULT); }
-
-
-int main(int argc, char *argv[]) { 
-    // Manage the input to json and pass the json to the function
-    RESULT = func(argv[1]); 
-
-    printf("From WASM: \n\tResult ptr: %d\n\tResult len: %d\n\tResult content: %s\n", &RESULT, strlen(RESULT), RESULT);
-
-    return 0; 
-}
-
-
