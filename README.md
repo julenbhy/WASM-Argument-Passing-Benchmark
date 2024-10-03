@@ -60,7 +60,9 @@ This benchmark suite has been developed as part of a project to port WASM to Ope
 - In C: `char* func(char* json)`
 - In Rust: `pub fn func(json: serde_json::Value) -> result<serde_json::Value, anyhow::Error>`
 
-For reference, you can find example functions in the files `add.c` and `add.rs`, included in each version of the embedder. To create new functions, simply copy one of these examples, modify the code, and compile it with:
+For reference, you can find example functions in the files `add.c` and `add.rs`, included in each version of the embedder. To create new functions, simply copy one of these examples and modify the code.
+
+Then, just compile it with:
 
 ```bash
 ./build.sh func_name.c
