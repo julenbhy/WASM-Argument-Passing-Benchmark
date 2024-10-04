@@ -29,3 +29,7 @@ Cargo.lock
 # Ignore target directory at any level of the project
 **/target
 **/compiled
+
+# Ignore struct_return directory
+**/struct_return
+result.csv

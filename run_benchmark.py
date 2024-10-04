@@ -5,13 +5,13 @@ import re
 
 
 # Number of runs for each benchmark
-num_runs = 1
+num_runs = 5
 
 # Verbose output
 verbose = True
 
 # Time limit for each benchmark
-time_limit = 60
+time_limit = 300
 
 FUNCTIONS = [ ("add", "{\"param1\":15,\"param2\":3}"),
               ("fib", "{\"param1\":30}"),
@@ -19,26 +19,62 @@ FUNCTIONS = [ ("add", "{\"param1\":15,\"param2\":3}"),
             ]
 
 
+def compile_embedders():
+    print("\n\n-----------------------------------------------")
+    print("\033[92m", "\nCompiling embedders", "\033[0m")
 
-def compile(function):
-    # Compile all benchmarks
+    command = ["cargo", "build", "--release", "--manifest-path", "inherit_stdio/Cargo.toml"]
+    completed_process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    if(verbose): print(f"\nstdout: \n{completed_process.stdout} \nstderr: \n{completed_process.stderr}")
+
+    command = ["cargo", "build", "--release", "--manifest-path", "memory_export/Cargo.toml"]
+    completed_process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    if(verbose): print(f"\nstdout: \n{completed_process.stdout} \nstderr: \n{completed_process.stderr}")    
+
+    command = ["cargo", "build", "--release", "--manifest-path", "component_model/Cargo.toml"]
+    completed_process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    if(verbose): print(f"\nstdout: \n{completed_process.stdout} \nstderr: \n{completed_process.stderr}")
+
+
+def compile_function(function):
     print("\n\n-----------------------------------------------")
     print("\033[92m", "\nCompiling", function, "\033[0m")
 
     function = function+".rs"
 
-    # "build.sh $function" at ./inherit_stdio/rust_functions
     completed_process = subprocess.run(["./compile.sh", function], cwd="inherit_stdio/rust_functions", stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    if(verbose): print(f"\n\tstdout: {completed_process.stdout} \n\tstderr: {completed_process.stderr}")
+    if(verbose): print(f"\nstdout: \n{completed_process.stdout} \nstderr: \n{completed_process.stderr}")
     
-    # "build.sh $function" at ./memory_export/rust_functions
     completed_process = completed_process = subprocess.run(["./compile.sh", function], cwd="memory_export/rust_functions", stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    if(verbose): print(f"\n\tstdout: {completed_process.stdout} \n\tstderr: {completed_process.stderr}")
+    if(verbose): print(f"\nstdout: \n{completed_process.stdout} \nstderr: \n{completed_process.stderr}")
     
-    # "build_components.sh $function.rs" at ./component_model/rust_func
     completed_process = subprocess.run(["./build_component.sh", function], cwd="component_model/rust_functions", stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    if(verbose): print(f"\n\tstdout: {completed_process.stdout} \n\tstderr: {completed_process.stderr}")
+    if(verbose): print(f"\nstdout: \n{completed_process.stdout} \nstderr: \n{completed_process.stderr}")
 
+
+def get_times(stdout):
+    '''
+    Get the following times from the stdout:
+    Times (ns):
+        Setup: xxxxx
+        Load: xxxxx
+        Instantiation: xxxxx
+        Args: xxxxx
+        Call: xxxxx
+        Result: xxxxx
+        Global: xxxxx
+        Output: xxxx(string)
+    '''
+    setup = re.search(r"Setup: (\d+)", stdout).group(1)
+    load = re.search(r"Load: (\d+)", stdout).group(1)
+    instantiation = re.search(r"Instantiation: (\d+)", stdout).group(1)
+    args = re.search(r"Args: (\d+)", stdout).group(1)
+    call = re.search(r"Call: (\d+)", stdout).group(1)
+    result = re.search(r"Result: (\d+)", stdout).group(1)
+    global_time = re.search(r"Global: (\d+)", stdout).group(1)
+    output = re.search(r"Output: (.+)", stdout).group(1)
+
+    return f"{setup},{load},{instantiation},{args},{call},{result},{global_time},{output}"
 
 
 def run_bench(command, embedder, function):
@@ -50,13 +86,14 @@ def run_bench(command, embedder, function):
 
         completed_process=subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=time_limit)
 
-        if(verbose): print(f"\n\tstdout: {completed_process.stdout} \n\tstderr: {completed_process.stderr}")
+        if(verbose): print(f"\nstdout: \n{completed_process.stdout} \nstderr: \n{completed_process.stderr}")
             
         # Extract the numerical values from the output
-        numerical_values = ','.join(re.findall(r"(\d+\.\d+|\d+)", completed_process.stdout))
+        #times = ','.join(re.findall(r"(\d+\.\d+|\d+)", completed_process.stdout))
+        times = get_times(completed_process.stdout)
 
         # Add the real mean and real stddev to the result
-        result += f"\n{embedder},{function},{numerical_values}"
+        result += f"\n{embedder},{function},{times}"
 
 
     print (f"\n\tResult: {result}")
@@ -67,14 +104,16 @@ def run_bench(command, embedder, function):
 
 
 def main():
+
+    compile_embedders()
    
     # Create CSV file for current benchmark and thread number
     csv_file = f"result.csv"
     with open(csv_file, "w") as file:
-        file.write("Embedder,Function,Deserialization_time,Preinstantiation_time,Instantiation_time,Execution_time,Result_retrieve_time,Total_time,Result")
+        file.write("Embedder,Function,Runtime_setup,Module_load,Instantiation,Arg_passing,Execution,Result_retrieve,Total_time,Result")
 
         for function, payload in FUNCTIONS:
-            compile(function)
+            compile_function(function)
 
             print("\n\n-----------------------------------------------")
             print("\033[92m", "\nRunning inherit_stdio", function, "\033[0m")

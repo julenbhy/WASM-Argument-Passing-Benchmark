@@ -45,14 +45,20 @@ fn main() -> Result<()> {
     func.call(&mut store, &[wasmtime::component::Val::String(input.into())], &mut result)?;
     let call_time = call_start.elapsed().as_nanos();
 
+    // Format the result
+    let result_start = std::time::Instant::now();
+    let result = match &result[0] {
+        wasmtime::component::Val::String(s) => s.clone(),
+        _ => "".into(),
+    };
+    let result_time = result_start.elapsed().as_nanos();
+
     let global_time = global_start.elapsed().as_nanos();
 
-    println!("From embedder:\n\tResult: {:?}", result);
-
     let args_time = 0; // Not any explicit time spent on args
-    let result_time = 0; // Not any explicit time spent on result
-    println!("Timing (ns):\n\tSetup: {}\n\tLoad: {}\n\tInstantiation: {}\n\tArgs: {}\n\tCall: {}\n\tResult: {}\n\tGlobal: {}", 
+    println!("Times (ns):\n\tSetup: {}\n\tLoad: {}\n\tInstantiation: {}\n\tArgs: {}\n\tCall: {}\n\tResult: {}\n\tGlobal: {}", 
             setup_time, load_time, instantiation_time, args_time, call_time, result_time, global_time);
+    println!("Output: {}", result);
 
     Ok(())
 }

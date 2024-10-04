@@ -62,15 +62,16 @@ fn main() -> Result<()> {
     let content_ptr = get_result.call(&mut store, ())? as usize;
 
     let content = memory.data(&store)[content_ptr..(content_ptr + length)].to_vec();
-    let result_string = String::from_utf8(content)?;
+    let result = String::from_utf8(content)?;
     let result_time = result_start.elapsed().as_nanos();
 
     let global_time = global_start.elapsed().as_nanos();
 
-    println!("From embedder:\n\tResult ptr: {}\n\tResut length: {}\n\tResult {}", content_ptr, length, result_string);
+    //println!("From embedder:\n\tResult ptr: {}\n\tResut length: {}\n\tResult {}", content_ptr, length, result);
 
     println!("Timing (ns):\n\tSetup: {}\n\tLoad: {}\n\tInstantiation: {}\n\tArgs: {}\n\tCall: {}\n\tResult: {}\n\tGlobal: {}", 
             setup_time, load_time, instantiation_time, args_time, call_time, result_time, global_time);
+    println!("Output: {}", result);
 
     Ok(())
 }
