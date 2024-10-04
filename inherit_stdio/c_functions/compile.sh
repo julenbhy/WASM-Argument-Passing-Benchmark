@@ -1,18 +1,16 @@
 #!/bin/bash
 
-WASI_SDK="/opt/wasi-sdk/bin/clang"  # Cambia esto por la ruta correcta a wasi-sdk
-WASMTIME=wasmtime
-# Obtiene el nombre del archivo .c como argumento
+# Gets the name of the .c file as an argument
 code_file=$1
 basename=$(basename "$code_file" .c)
 
-# Crea el directorio 'compiled' si no existe
+# Creates the 'compiled' directory if it does not exist
 mkdir -p compiled
 
-# Lee el contenido del archivo original (que solo tiene la función `func`)
+# Reads the content of the original file (which only contains the `func` function)
 user_code=$(cat "$code_file")
 
-# Agrega el código adicional antes de compilar
+# Adds additional code before compiling
 cat <<EOF > compiled/$basename.full.c
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,11 +30,11 @@ int main(int argc, char *argv[]) {
 }
 EOF
 
-# Compila el código original usando el compilador regular
-gcc compiled/$basename.full.c -o compiled/$basename
+# Compiles the original code using the regular compiler
+$CC compiled/$basename.full.c -o compiled/$basename
 
-# Compila el código usando wasi-sdk
-$WASI_SDK compiled/$basename.full.c -o compiled/$basename.wasm
+# Compiles the code using wasi-sdk
+$WASI_SDK/bin/clang --sysroot=$WASI_SDK/share/wasi-sysroot  compiled/$basename.full.c -o compiled/$basename.wasm
 
-# Precompila el código wasm usando wasmtime
+# Precompiles the wasm code using wasmtime
 $WASMTIME compile compiled/$basename.wasm -o compiled/$basename.cwasm

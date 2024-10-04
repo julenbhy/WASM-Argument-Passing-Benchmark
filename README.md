@@ -52,6 +52,12 @@ Compiling the component model requires the installation of additional tools. Mor
 - Could introduce additional overhead due to type translation between WIT and the core module's memory.
 - Not compatible with wassi-threads
 
+## Set environment variables:
+
+Before compiling or executing any benchmark please set the required paths at `env.sh` and execute:
+```bash
+source env.sh
+```
 
 ## Add New Functions
 
@@ -84,12 +90,12 @@ cargo run --release c_functions/compiled/func_name.cwasm arg1 arg2
 
 - Wasmtime CLI 21.0.1
 ```sh
-
+curl -sL https://github.com/bytecodealliance/wasmtime/releases/download/v21.0.1/wasmtime-v21.0.1-x86_64-linux.tar.xz | sudo tar -xJ -C /opt/
 ```
 
 - WASI-SDK 21
 ```sh
-curl -sL https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-21/wasi-sdk-21.0-linux.tar.gz | sudo tar -xz -C /opt/ && sudo mv /opt/wasi-sdk-21.0 /opt/wasi-sdk
+curl -sL https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-21/wasi-sdk-21.0-linux.tar.gz | sudo tar -xz -C /opt/
 ```
 
 - Cargo

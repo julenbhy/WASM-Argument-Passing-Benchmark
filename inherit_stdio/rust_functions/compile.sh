@@ -77,5 +77,5 @@ cp $TARGET_DIR/builder.wasm "compiled/$OUTPUT_FILE.wasm"
 
 echo "Compilation successful. Binary saved as compiled/$OUTPUT_FILE"
 
-# Precompole the wasm file using wasmtime
-wasmtime compile "compiled/$OUTPUT_FILE.wasm" -o "compiled/$OUTPUT_FILE.cwasm"
+# Precompile the wasm file using wasmtime
+$WASMTIME compile "compiled/$OUTPUT_FILE.wasm" -o "compiled/$OUTPUT_FILE.cwasm"
