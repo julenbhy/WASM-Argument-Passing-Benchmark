@@ -9,10 +9,15 @@ fn main() -> Result<()> {
     //let input = parse_args(args.clone());
     // Version 2: Take a single argument (already a JSON object)
     let input = args[2].clone();
-    println!("Input: {:?}", input);
+    //println!("Input: {:?}", input);
 
     let mut result = [wasmtime::component::Val::String("".into())];
-        
+    
+    // Time the entire process
+    let global_start = std::time::Instant::now();
+
+    // Set up the WASI environment
+    let setup_start = std::time::Instant::now();
     let engine = Engine::default();
     let mut linker = Linker::<MyState>::new(&engine);
     wasmtime_wasi::add_to_linker_sync(&mut linker)?;
@@ -20,20 +25,34 @@ fn main() -> Result<()> {
 
     let wasi_ctx = WasiCtxBuilder::new().inherit_stdio().build();
     let mut store = Store::new(&engine, MyState { ctx: wasi_ctx, table: ResourceTable::new(),},);
+    let setup_time = setup_start.elapsed().as_nanos();
 
     // Load the component from disk
+    let load_start = std::time::Instant::now();
     let bytes = std::fs::read(&args[1]).unwrap();
     let component = unsafe { Component::deserialize(&engine, bytes)? };
+    let load_time = load_start.elapsed().as_nanos();
 
     // Instantiate the component
+    let instantiation_start = std::time::Instant::now();
     let instance_pre = linker.instantiate_pre(&component)?;
     let instance = instance_pre.instantiate(&mut store).unwrap();
+    let instantiation_time = instantiation_start.elapsed().as_nanos();
 
     // Call the `func-wrapper` function
+    let call_start = std::time::Instant::now();
     let func = instance.get_func(&mut store, "func-wrapper").expect("func-wrapper export not found");
     func.call(&mut store, &[wasmtime::component::Val::String(input.into())], &mut result)?;
+    let call_time = call_start.elapsed().as_nanos();
 
-    println!("From rust:\n\tResult: {:?}", result);
+    let global_time = global_start.elapsed().as_nanos();
+
+    println!("From embedder:\n\tResult: {:?}", result);
+
+    let args_time = 0; // Not any explicit time spent on args
+    let result_time = 0; // Not any explicit time spent on result
+    println!("Timing (ns):\n\tSetup: {}\n\tLoad: {}\n\tInstantiation: {}\n\tArgs: {}\n\tCall: {}\n\tResult: {}\n\tGlobal: {}", 
+            setup_time, load_time, instantiation_time, args_time, call_time, result_time, global_time);
 
     Ok(())
 }
