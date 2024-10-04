@@ -2,15 +2,13 @@
 data = readtable('result.csv');
 
 % Remove the 'Result' column as it contains non-numeric data
-data.Result = [];
+data = removevars(data, 'Result');
 
 % Group by 'Embedder' and calculate the mean of the metrics across all functions
 metrics = varfun(@mean, data, 'InputVariables', ...
     {'Runtime_setup', 'Module_load', 'Instantiation', 'Arg_passing', 'Execution', 'Result_retrieve', 'Total_time'}, ...
     'GroupingVariables', 'Embedder');
 
-% Remove unnecessary columns
-metrics.GroupCount = [];
 
 % Transpose the table to have metrics in rows
 metric_names = metrics.Properties.VariableNames(3:end);

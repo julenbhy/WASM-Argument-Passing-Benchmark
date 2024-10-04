@@ -1,7 +1,7 @@
 data = readtable('result.csv');
 
 % Remove the 'Result' column as it contains non-numeric data
-data.Result = [];
+data = removevars(data, 'Result');
 
 functions = unique(data.Function);
 
@@ -14,9 +14,6 @@ for i = 1:length(functions)
     metrics = varfun(@mean, func_data, 'InputVariables', ...
         {'Runtime_setup', 'Module_load', 'Instantiation', 'Arg_passing', 'Execution', 'Result_retrieve', 'Total_time'}, ...
         'GroupingVariables', 'Embedder');
-    
-    % Remove unnecessary columns
-    metrics.GroupCount = [];
     
     % Transpose the table to have metrics in rows
     metric_names = metrics.Properties.VariableNames(3:end);

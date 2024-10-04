@@ -22,7 +22,7 @@ In this method, the embedder passes arguments via the standard input/output (std
 
 ### 2. Export Memory
 
-In this method, the WASM module exports a memory space that the embedder can interact with directly. The module also provides a function to allocate a buffer within this memory. The embedder writes input data into this buffer before invoking the module's main function, which then reads and processes the data from the pre-allocated memory space.
+In this method, the WASM module exports a memory space that the embedder can interact with directly. The module also provides a function to allocate a buffer within this memory. The embedder writes input data into this buffer before invoking the module's _start function, which then reads and processes the data from the pre-allocated memory space.
 
 #### Pros:
 - More efficient for passing binary or structured data.
@@ -85,6 +85,21 @@ To execute the desired function (once compiled), navigate to the root directory 
 ```bash
 cargo run --release c_functions/compiled/func_name.cwasm arg1 arg2
 ```
+## Metrics
+
+-Runtime setup: The time taken to setup all the runtime stuff such as engine, store...
+
+- Module load: The time taken to load the precompiled module by the runtime.
+
+- Instantiation: The time taken to preintantitate and instantiate the module.
+
+- Arg passing: The time taken to pass arguments from the embedder to the module. It is 0 if no explicit code is used for this step.
+
+- Execution: The time taken to execute the modules _start function.
+
+- Result retrieve: The time taken to retrieva the result from the module to the embedder. It is 0 if no explicit code is used for this step.
+
+- Total time: The time taken to execute the whole process.
 
 ## Software setup
 
