@@ -5,7 +5,7 @@ import re
 
 
 # Number of runs for each benchmark
-num_runs = 5
+num_runs = 1
 
 # Verbose output
 verbose = True
@@ -16,7 +16,10 @@ time_limit = 300
 FUNCTIONS = [ ("add", "{\"param1\":15,\"param2\":3}"),
               ("fib", "{\"param1\":30}"),
               ("noop", "{\"param1\":\"a\",\"param2\":\"b\",\"param3\":\"c\"}" ),
+              ("read_json", "{\"param1\":\"a\",\"param2\":\"b\",\"param3\":\"c\"}" ),
             ]
+
+# FUNCTIONS = [ ("read_json", "{\"param1\":\"a\",\"param2\":\"b\",\"param3\":\"c\"}" ),]
 
 
 def compile_embedders():
@@ -42,12 +45,19 @@ def compile_function(function):
 
     function = function+".rs"
 
+    # Copy the source file under ./rust_functions to each embedder's folder
+    command = ["cp", f"rust_functions/{function}", f"inherit_stdio/rust_functions/{function}"]
+    subprocess.run(command)
     completed_process = subprocess.run(["./compile.sh", function], cwd="inherit_stdio/rust_functions", stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     if(verbose): print(f"\nstdout: \n{completed_process.stdout} \nstderr: \n{completed_process.stderr}")
     
+    command = ["cp", f"rust_functions/{function}", f"memory_export/rust_functions/{function}"]
+    subprocess.run(command)
     completed_process = completed_process = subprocess.run(["./compile.sh", function], cwd="memory_export/rust_functions", stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     if(verbose): print(f"\nstdout: \n{completed_process.stdout} \nstderr: \n{completed_process.stderr}")
     
+    command = ["cp", f"rust_functions/{function}", f"component_model/rust_functions/{function}"]
+    subprocess.run(command)
     completed_process = subprocess.run(["./build_component.sh", function], cwd="component_model/rust_functions", stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     if(verbose): print(f"\nstdout: \n{completed_process.stdout} \nstderr: \n{completed_process.stderr}")
 
