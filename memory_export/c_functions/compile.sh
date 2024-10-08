@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Define default paths if not set in the environment
+WASI_SDK=${WASI_SDK_PATH:-"/opt/wasi-sdk"}
+WASMTIME=${WASMTIME_PATH:-"wasmtime"}
+
 # Gets the name of the .c file as an argument
 code_file=$1
 basename=$(basename "$code_file" .c)

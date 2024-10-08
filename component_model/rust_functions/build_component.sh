@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Define default paths if not set in the environment
+WASI_SDK=${WASI_SDK_PATH:-"/opt/wasi-sdk"}
+WASMTIME=${WASMTIME_PATH:-"wasmtime"}
+
 # Function to add dependencies to Cargo.toml
 add_dependencies() {
   local crate_names=$(grep -Eo 'use [a-zA-Z0-9_]+::' "$1" | awk '{print $2}' | sed 's/::$//' | sort | uniq)
